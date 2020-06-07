@@ -1,6 +1,7 @@
-package GUI;
+package Vue;
 
-import edt.*;
+import Model.Seance;
+import Model.Funtions;
 import java.awt.event.*;
 import java.sql.*;
 import java.time.*;
