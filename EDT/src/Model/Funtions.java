@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edt;
+package Model;
 
 import java.awt.*;
 import java.sql.*;
@@ -18,7 +18,7 @@ public class Funtions {
     // Connexion DB
     public final static String DB_URL="jdbc:mysql://localhost/edt";
     public final static String USER ="root", PASS="";
-    private final static Color[] colors = {new Color(97,93,217), new Color(104,242,216), new Color(174,219,105), new Color(242,194,104),
+    private final static Color[] colors = {new Color(104,242,216), new Color(174,219,105), new Color(242,194,104),
                             new Color(235,131,129), new Color(130,217,140),new Color(242,234,131),new Color(219,173,129),new Color(245,149,185),
                             new Color(174,155,235), new Color(235,189,98), new Color(110, 170, 219), new Color(155,219,145), new Color(235, 106, 101)};
     // ETAT : 1 -> VALIDE / 2 -> ANNULE / 3 -> EN COURS DE VALIDATION
@@ -26,7 +26,7 @@ public class Funtions {
         Seance[] seances = null;
         
         Connection conn = null;
-        Statement stmt = null;
+        Statement stmt = null, stmt2 = null;
         ResultSet rs = null, rs2 = null;
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -37,6 +37,7 @@ public class Funtions {
             System.out.println("Creating statement...");
 
             stmt = conn.createStatement();
+            stmt2 = conn.createStatement();
         }catch(SQLException se){
             //Handle errors for JDBC
             se.printStackTrace();
@@ -54,7 +55,7 @@ public class Funtions {
                         "	seance ON seance_groupe.ID_SEANCE = ID \n" +
                         "WHERE \n" +
                         "seance_groupe.ID_GROUPE = " + ID_GROUPE + " AND seance.ETAT = " + ETAT + 
-                        "AND seance.DATE < \"" + fin + "\" AND seance.DATE > \"" + debut + "\"";
+                        " AND seance.DATE <= \"" + fin + "\" AND seance.DATE >= \"" + debut + "\"";
             rs = stmt.executeQuery(sql);
 
             int total = 0;
@@ -88,7 +89,7 @@ public class Funtions {
                     "	seance_groupe ON seance_groupe.ID_SEANCE = seance.ID\n" +
                     "WHERE \n" +
                     "	seance_groupe.ID_GROUPE = " + ID_GROUPE + " AND seance.ETAT = " + ETAT +
-                    " AND seance.DATE < \"" + fin + "\" AND seance.DATE > \"" + debut + "\""    ;
+                    " AND seance.DATE <= \"" + fin + "\" AND seance.DATE >= \"" + debut + "\""    ;
                 rs = stmt.executeQuery(sql);
                 int id, semaine, etat, e=0, posColor=0;
                 String coursName, typeCours;
@@ -118,7 +119,7 @@ public class Funtions {
                 int totalTemp = 0;
                 Enseignant[] enseignants;
                 Location[] lieu;
-                String[] groupes;
+                Groupe[] groupes;
                 for(int i=0; i<seances.length; ++i){
                     id = seances[i].getId();
                     
@@ -153,16 +154,22 @@ public class Funtions {
                     
                     rs = stmt.executeQuery(sql);
                     e = 0;
+                    ArrayList<String> cours;
+                    String email, name, prenom;
                     while(rs.next()){
                         int ID = rs.getInt("ID");
+                        email = rs.getString("EMAIL");
+                        name = rs.getString("NOM");
+                        prenom = rs.getString("PRENOM");
+                        
                         sql = "SELECT cours.NOM FROM enseignant JOIN cours ON cours.ID = enseignant.ID_COURS WHERE enseignant.ID_UTILISATEUR = " + ID;
-                        rs2 = stmt.executeQuery(sql);
-                        ArrayList<String> cours = new ArrayList<>();
+                        rs2 = stmt2.executeQuery(sql);
+                        cours = new ArrayList<>();
+                        
                         while(rs2.next()){
                             cours.add(rs2.getString("NOM"));
                         }
-                        enseignants[e] = new Enseignant(ID, rs.getString("EMAIL"), rs.getString("NOM"), rs.getString("PRENOM"),
-                                            cours);
+                        enseignants[e] = new Enseignant(ID, email, name, prenom, cours);
                         ++e;
                     }
                     seances[i].setEnseignants(enseignants);
@@ -215,19 +222,20 @@ public class Funtions {
                     while(rs.next()){
                         totalTemp = rs.getInt("TOTAL");
                     }
-                    groupes = new String[totalTemp];
+                    groupes = new Groupe[totalTemp];
                     
                     sql = "SELECT\n" +
-                        "	groupe.NOM\n" +
+                        "	groupe.NOM, promotion.NOM AS NAME\n" +
                         "FROM\n" +
                         "	groupe\n" +
-                        "INNER JOIN\n" +
+                        "JOIN\n" +
                         "	seance_groupe ON seance_groupe.ID_GROUPE = groupe.ID\n" +
-                        "WHERE\n" +
+                        "JOIN promotion ON promotion.ID = groupe.ID_PROMOTION WHERE\n" +
                         "	seance_groupe.ID_SEANCE =" + id;
+                    rs = stmt.executeQuery(sql);
                     e = 0;
                     while(rs.next()){
-                        groupes[e] = rs.getString("NOM");
+                        groupes[e] = new Groupe(rs.getString("NOM"), rs.getString("NAME"));
                         ++e;
                     }
                     seances[i].setGroupes(groupes);
@@ -247,6 +255,7 @@ public class Funtions {
             System.out.print("Closing connection...");
             rs.close();
             stmt.close();
+            stmt2.close();
             conn.close();
         }catch(SQLException se){
             //Handle errors for JDBC
@@ -275,7 +284,7 @@ public class Funtions {
         Seance[] seances = null;
         
         Connection conn = null;
-        Statement stmt = null;
+        Statement stmt = null, stmt2 = null;
         ResultSet rs = null, rs2 = null;
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -286,6 +295,7 @@ public class Funtions {
             System.out.println("Creating statement...");
 
             stmt = conn.createStatement();
+            stmt2 = conn.createStatement();
         }catch(SQLException se){
             //Handle errors for JDBC
             se.printStackTrace();
@@ -303,8 +313,8 @@ public class Funtions {
                         "	seance ON seance_enseignants.ID_SEANCE = seance.ID\n" +
                         "WHERE\n" +
                         "	seance_enseignants.ID_ENSEIGNANT = " + ID_ENSEIGNANT + 
-                        " AND seance.DATE > \"" + debut +
-                        "\" AND seance.DATE < \"" + fin + "\" AND seance.ETAT = " + ETAT;
+                        " AND seance.DATE >= \"" + debut +
+                        "\" AND seance.DATE <= \"" + fin + "\" AND seance.ETAT = " + ETAT;
             rs = stmt.executeQuery(sql);
 
             int total = 0;
@@ -337,7 +347,7 @@ public class Funtions {
                     "	seance_enseignants ON seance_enseignants.ID_SEANCE = seance.ID\n" +
                     "WHERE \n" +
                     "	seance_enseignants.ID_ENSEIGNANT = " + ID_ENSEIGNANT + " AND seance.ETAT = " + ETAT +
-                    " AND seance.DATE < \"" + fin + "\" AND seance.DATE > \"" + debut + "\""    ;
+                    " AND seance.DATE <= \"" + fin + "\" AND seance.DATE >= \"" + debut + "\""    ;
                 rs = stmt.executeQuery(sql);
                 int id, semaine, etat, e=0;
                 String coursName, typeCours;
@@ -361,7 +371,7 @@ public class Funtions {
                 int totalTemp = 0;
                 Enseignant[] enseignants;
                 Location[] lieu;
-                String[] groupes;
+                Groupe[] groupes;
                 for(int i=0; i<seances.length; ++i){
                     id = seances[i].getId();
                     
@@ -396,16 +406,20 @@ public class Funtions {
                     
                     rs = stmt.executeQuery(sql);
                     e = 0;
+                    String email, name, prenom;
                     while(rs.next()){
                         int ID = rs.getInt("ID");
+                        email = rs.getString("EMAIL");
+                        name = rs.getString("NOM");
+                        prenom = rs.getString("PRENOM");
+                        
                         sql = "SELECT cours.NOM FROM enseignant JOIN cours ON cours.ID = enseignant.ID_COURS WHERE enseignant.ID_UTILISATEUR = " + ID;
-                        rs2 = stmt.executeQuery(sql);
+                        rs2 = stmt2.executeQuery(sql);
                         ArrayList<String> cours = new ArrayList<>();
                         while(rs2.next()){
                             cours.add(rs2.getString("NOM"));
                         }
-                        enseignants[e] = new Enseignant(ID, rs.getString("EMAIL"), rs.getString("NOM"), rs.getString("PRENOM"),
-                                            cours);
+                        enseignants[e] = new Enseignant(ID, email, name, prenom, cours);
                         ++e;
                     }
                     seances[i].setEnseignants(enseignants);
@@ -458,19 +472,20 @@ public class Funtions {
                     while(rs.next()){
                         totalTemp = rs.getInt("TOTAL");
                     }
-                    groupes = new String[totalTemp];
+                    groupes = new Groupe[totalTemp];
                     
                     sql = "SELECT\n" +
-                        "	groupe.NOM\n" +
+                        "	groupe.NOM, promotion.NOM AS NAME\n" +
                         "FROM\n" +
                         "	groupe\n" +
-                        "INNER JOIN\n" +
+                        "JOIN\n" +
                         "	seance_groupe ON seance_groupe.ID_GROUPE = groupe.ID\n" +
-                        "WHERE\n" +
+                        "JOIN promotion ON promotion.ID = groupe.ID_PROMOTION WHERE\n" +
                         "	seance_groupe.ID_SEANCE =" + id;
+                    rs = stmt.executeQuery(sql);
                     e = 0;
                     while(rs.next()){
-                        groupes[e] = rs.getString("NOM");
+                        groupes[e] = new Groupe(rs.getString("NOM"), rs.getString("NAME"));
                         ++e;
                     }
                     seances[i].setGroupes(groupes);
@@ -490,6 +505,7 @@ public class Funtions {
             System.out.print("Closing connection...");
             rs.close();
             stmt.close();
+            stmt2.close();
             conn.close();
         }catch(SQLException se){
             //Handle errors for JDBC
@@ -518,7 +534,7 @@ public class Funtions {
         Seance[] seances = null;
         
         Connection conn = null;
-        Statement stmt = null;
+        Statement stmt = null, stmt2 = null;
         ResultSet rs = null, rs2 = null;
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -529,6 +545,7 @@ public class Funtions {
             System.out.println("Creating statement...");
 
             stmt = conn.createStatement();
+            stmt2 = conn.createStatement();
         }catch(SQLException se){
             //Handle errors for JDBC
             se.printStackTrace();
@@ -541,13 +558,13 @@ public class Funtions {
             String sql = "SELECT\n" +
                         "	COUNT(*) AS TOTAL\n" +
                         "FROM \n" +
-                        "	seance_enseignants\n" +
+                        "	seance_salles\n" +
                         "JOIN\n" +
                         "	seance ON seance_salles.ID_SEANCE = seance.ID\n" +
                         "WHERE\n" +
                         "	seance_salles.ID_SALLE = " + ID_SALLE + 
-                        " AND seance.DATE > \"" + debut +
-                        "\" AND seance.DATE < \"" + fin + "\" AND seance.ETAT = " + ETAT;
+                        " AND seance.DATE >= \"" + debut +
+                        "\" AND seance.DATE <= \"" + fin + "\" AND seance.ETAT = " + ETAT;
             rs = stmt.executeQuery(sql);
 
             int total = 0;
@@ -580,7 +597,7 @@ public class Funtions {
                     "	seance_salles ON seance_salles.ID_SEANCE = seance.ID\n" +
                     "WHERE \n" +
                     "	seance_salles.ID_SALLE = " + ID_SALLE + " AND seance.ETAT = " + ETAT +
-                    " AND seance.DATE < \"" + fin + "\" AND seance.DATE > \"" + debut + "\""    ;
+                    " AND seance.DATE <= \"" + fin + "\" AND seance.DATE >= \"" + debut + "\""    ;
                 rs = stmt.executeQuery(sql);
                 int id, semaine, etat, e=0;
                 String coursName, typeCours;
@@ -604,7 +621,7 @@ public class Funtions {
                 int totalTemp = 0;
                 Enseignant[] enseignants;
                 Location[] lieu;
-                String[] groupes;
+                Groupe[] groupes;
                 for(int i=0; i<seances.length; ++i){
                     id = seances[i].getId();
                     
@@ -639,16 +656,19 @@ public class Funtions {
                     
                     rs = stmt.executeQuery(sql);
                     e = 0;
+                    String email, name, prenom;
                     while(rs.next()){
                         int ID = rs.getInt("ID");
+                        email = rs.getString("EMAIL");
+                        name = rs.getString("NOM");
+                        prenom = rs.getString("PRENOM");
                         sql = "SELECT cours.NOM FROM enseignant JOIN cours ON cours.ID = enseignant.ID_COURS WHERE enseignant.ID_UTILISATEUR = " + ID;
-                        rs2 = stmt.executeQuery(sql);
+                        rs2 = stmt2.executeQuery(sql);
                         ArrayList<String> cours = new ArrayList<>();
                         while(rs2.next()){
                             cours.add(rs2.getString("NOM"));
                         }
-                        enseignants[e] = new Enseignant(ID, rs.getString("EMAIL"), rs.getString("NOM"), rs.getString("PRENOM"),
-                                            cours);
+                        enseignants[e] = new Enseignant(ID, email, name, prenom, cours);
                         ++e;
                     }
                     seances[i].setEnseignants(enseignants);
@@ -701,19 +721,20 @@ public class Funtions {
                     while(rs.next()){
                         totalTemp = rs.getInt("TOTAL");
                     }
-                    groupes = new String[totalTemp];
+                    groupes = new Groupe[totalTemp];
                     
                     sql = "SELECT\n" +
-                        "	groupe.NOM\n" +
+                        "	groupe.NOM, promotion.NOM AS NAME\n" +
                         "FROM\n" +
                         "	groupe\n" +
-                        "INNER JOIN\n" +
+                        "JOIN\n" +
                         "	seance_groupe ON seance_groupe.ID_GROUPE = groupe.ID\n" +
-                        "WHERE\n" +
+                        "JOIN promotion ON promotion.ID = groupe.ID_PROMOTION WHERE\n" +
                         "	seance_groupe.ID_SEANCE =" + id;
                     e = 0;
+                    rs = stmt.executeQuery(sql);
                     while(rs.next()){
-                        groupes[e] = rs.getString("NOM");
+                        groupes[e] = new Groupe(rs.getString("NOM"), rs.getString("NAME"));
                         ++e;
                     }
                     seances[i].setGroupes(groupes);

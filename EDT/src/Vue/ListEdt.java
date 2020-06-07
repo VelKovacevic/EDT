@@ -1,6 +1,8 @@
-package GUI;
+package Vue;
 
-import edt.*;
+import Model.Seance;
+import Model.Funtions;
+import Model.Cache;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +17,7 @@ import javax.swing.*;
  */
 public class ListEdt extends JFrame implements ActionListener{
     private final int SIZE_X = 820, SIZE_Y = 600;
-    private Seance[] seances;
+    private Seance[] seances, seancesAnnule;
     private String[] titles = {"Jour", "Debut", "Fin", "Cours", "Groupe", "Lieu", "Type"};
     private LocalDate debut;
     private int id, type;
@@ -31,14 +33,18 @@ public class ListEdt extends JFrame implements ActionListener{
     private JMenuItem deconnexion = new JMenuItem("Deconnexion");
     private JMenu recap = new JMenu("Recapitulatif");
     private JMenuItem courS = new JMenuItem("Cours");
+    private JMenu recherche =new JMenu("Recherche");
+    private JMenuItem  rechercher= new JMenuItem("Rechercher");
+    private JMenu admin = new JMenu("Admin");
+    private JMenuItem listeEDT = new JMenuItem("EDT Liste");
             
-    public ListEdt(Seance[] seances, LocalDate debut, int id, String nom, int type){
+    public ListEdt(Seance[] seancesAnnule, Seance[] seances, LocalDate debut, int id, String nom, int type){
         this.seances = seances;
         this.debut = debut;
         this.id = id;
         this.nom = nom;
         this.type = type;
-        
+        this.seancesAnnule = seancesAnnule;
         
         vertical.addActionListener(this);
         horizontal.addActionListener(this);
@@ -54,6 +60,16 @@ public class ListEdt extends JFrame implements ActionListener{
             courS.addActionListener(this);
             recap.add(courS);
             mb.add(recap);
+        }
+        if(Cache.utilisateur.getDroit() == 1){
+            listeEDT.addActionListener(this);
+            admin.add(listeEDT);
+            mb.add(admin);
+        }
+        if(Cache.utilisateur.getDroit() == 1 || Cache.utilisateur.getDroit() == 2){
+            rechercher.addActionListener(this);
+            recherche.add(rechercher);
+            mb.add(recherche);
         }
         mb.add(deco);
         this.setJMenuBar(mb);
@@ -145,19 +161,22 @@ public class ListEdt extends JFrame implements ActionListener{
                 switch (type) {
                     case 1:
                         seances = Funtions.seancesUtilisateur(id, 1, targetDebutDate, targetFinDate);
-                        new ListEdt(seances, targetDebutDate, id, nom, type);
+                        seancesAnnule = Funtions.seancesUtilisateur(id, 2, targetDebutDate, targetFinDate);
+                        new ListEdt(seancesAnnule, seances, targetDebutDate, id, nom, type);
                         this.setVisible(false);
                         this.dispose();
                         break;
                     case 2:
                         seances = Funtions.seancesEnseignant(id, 1, targetDebutDate, targetFinDate);
-                        new ListEdt(seances, targetDebutDate, id, nom, type);
+                        seancesAnnule = Funtions.seancesEnseignant(id, 2, targetDebutDate, targetFinDate);
+                        new ListEdt(seancesAnnule, seances, targetDebutDate, id, nom, type);
                         this.setVisible(false);
                         this.dispose();
                         break;
                     case 3:
                         seances = Funtions.seancesSalle(id, 1, targetDebutDate, targetFinDate);
-                        new ListEdt(seances, targetDebutDate, id, nom, type);
+                        seancesAnnule = Funtions.seancesSalle(id, 2, targetDebutDate, targetFinDate);
+                        new ListEdt(seancesAnnule, seances, targetDebutDate, id, nom, type);
                         this.setVisible(false);
                         this.dispose();
                         break;
@@ -169,15 +188,28 @@ public class ListEdt extends JFrame implements ActionListener{
             this.setVisible(false);
             this.dispose();
         }else if(e.getSource() == vertical){
-            new EdtVertical(seances, debut, id, nom, type);
+            //new EdtVertical(seances, debut, id, nom, type);
+            new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
             this.setVisible(false);
             this.dispose();
         }else if(e.getSource() == horizontal){
-            new Edt(seances, debut, id, nom, type);
+            new Edt(seancesAnnule,seances, debut, id, nom, type);
             this.setVisible(false);
             this.dispose();
         }else if(e.getSource() == liste){
-            new ListEdt(seances, debut, id, nom, type);
+            new ListEdt(seancesAnnule, seances, debut, id, nom, type);
+            this.setVisible(false);
+            this.dispose();
+        }else if(e.getSource() == courS){
+            new PageDates(seancesAnnule, seances, debut, id, nom, type);
+            this.setVisible(false);
+            this.dispose();
+        }else if(e.getSource() == listeEDT){
+            new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
+            this.setVisible(false);
+            this.dispose();
+        }else if(e.getSource() == rechercher){
+            new Recherche();
             this.setVisible(false);
             this.dispose();
         }

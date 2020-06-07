@@ -1,4 +1,4 @@
-package edt;
+package Model;
 
 /**
  *
