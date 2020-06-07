@@ -63,11 +63,15 @@ public class MoveSeance extends JFrame implements ActionListener{
         cancel = new JButton("Annuler");
         cancel.addActionListener(this);
         cancel.setBounds(60, 200, cancel.getPreferredSize().width, 23);
+        cancel.setBackground(new Color(38,114,236));
+        cancel.setForeground(Color.WHITE);
         panel.add(cancel);
         
         validate = new JButton("Valider");
         validate.addActionListener(this);
         validate.setBounds(70 + cancel.getPreferredSize().width, 200, validate.getPreferredSize().width, 23);
+        validate.setBackground(new Color(38,114,236));
+        validate.setForeground(Color.WHITE);
         panel.add(validate);
         
         this.add(panel);

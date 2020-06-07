@@ -17,10 +17,8 @@ public class AddSeance extends JFrame implements ActionListener{
     private LocalDate debut; 
     private String nom;
     private int id, type;
-    private Seance seance;
     
-    public AddSeance(Seance seance, LocalDate debut, int id, String nom, int type){
-        this.seance = seance;
+    public AddSeance(LocalDate debut, int id, String nom, int type){
         this.debut = debut;
         this.id = id;
         this.nom = nom;
@@ -165,10 +163,16 @@ public class AddSeance extends JFrame implements ActionListener{
             
             cancel = new JButton("Annuler");
             cancel.setBounds(60, 450, cancel.getPreferredSize().width, 23);
+            cancel.setBackground(new Color(38,114,236));
+            cancel.setForeground(Color.WHITE);
+            cancel.addActionListener(this);
             panel.add(cancel);
 
             validate = new JButton("Ajouter");
             validate.setBounds(70 + cancel.getPreferredSize().width, 450, validate.getPreferredSize().width, 23);
+            validate.setBackground(new Color(38,114,236));
+            validate.setForeground(Color.WHITE);
+            validate.addActionListener(this);
             panel.add(validate);
             
         }catch(SQLException se){
@@ -260,7 +264,8 @@ public class AddSeance extends JFrame implements ActionListener{
             if(splitDate.length != 3){
                 JOptionPane.showMessageDialog(null, "FORMAT DATE INCORECT");
             }else{
-                if(splitDebut.length != 2){
+                LocalDate datea = LocalDate.of(Integer.parseInt(splitDate[0]), Integer.parseInt(splitDate[1]), Integer.parseInt(splitDate[2]));
+                if(splitDebut.length != 2 || datea.getDayOfWeek() == DayOfWeek.SATURDAY || datea.getDayOfWeek() == DayOfWeek.SUNDAY){
                     JOptionPane.showMessageDialog(null, "FORMAT HEURE DEBUT INCORRECT");
                 }else{
                     if(splitFin.length != 2){
@@ -321,26 +326,29 @@ public class AddSeance extends JFrame implements ActionListener{
                             if(total != 0)
                                 groupeIndispo = true;
                                 
+                            LocalTime de = LocalTime.of(Integer.parseInt(splitDebut[0]), Integer.parseInt(splitDebut[1])), 
+                                    f = LocalTime.of(Integer.parseInt(splitFin[0]), Integer.parseInt(splitFin[1]));
+                            LocalTime tempsa = LocalTime.of(20,30), tap = LocalTime.of(8,30);
                             
-                            
-                            if(groupeIndispo){
+                            if(groupeIndispo || de.isBefore(tap) || de.isAfter(tempsa) || f.isBefore(de) || f.isAfter(tempsa) ){
                                 JOptionPane.showMessageDialog(null, "GROUP INDISPONIBLE POUR CE CRENEAU");
                             }else{
                                 String ens = enseignant.getSelectedItem().toString();
                                 String[] splitEnseignant = ens.split(" - ");
                                 
                                 sql = "SELECT\n" +
-                                    "	enseignant.ID\n" +
+                                    "	enseignant.ID_UTILISATEUR\n" +
                                     "FROM\n" +
                                     "	enseignant\n" +
                                     "JOIN \n" +
                                     "	utilisateur ON utilisateur.ID = enseignant.ID_UTILISATEUR\n" +
                                     "WHERE\n" +
                                     "	utilisateur.NOM = \"" + splitEnseignant[0] + "\" AND utilisateur.PRENOM = \"" + splitEnseignant[1] + "\"";
+                                
                                 rs = stmt.executeQuery(sql);
                                 int idens = 0;
                                 while(rs.next()){
-                                    idens = rs.getInt("ID");
+                                    idens = rs.getInt("ID_UTILISATEUR");
                                 }
                                 boolean ensIndispo = false;
                                 sql = "SELECT\n" +
@@ -362,7 +370,7 @@ public class AddSeance extends JFrame implements ActionListener{
                                 if(ensIndispo){
                                     JOptionPane.showMessageDialog(null, "ENSEIGNANT INDISPONIBLE SUR CE CRENEAU");
                                 }else{
-                                    String sal = enseignant.getSelectedItem().toString();
+                                    String sal = salle.getSelectedItem().toString();
                                     String[] splitSalle = sal.split(" - ");
                                     boolean salleIndispo = false;
                                     
@@ -374,6 +382,7 @@ public class AddSeance extends JFrame implements ActionListener{
                                             "	site ON salle.ID_SITE = site.ID\n" +
                                             "WHERE\n" +
                                             "	salle.NOM = \"" + splitSalle[1] + "\" AND site.NOM = \"" + splitSalle[0] + "\"";
+                                    System.out.println(sql);
                                     rs = stmt.executeQuery(sql);
                                     int idsalle = 0;
                                     while(rs.next()){
@@ -397,73 +406,88 @@ public class AddSeance extends JFrame implements ActionListener{
                                     if(salleIndispo){
                                         JOptionPane.showMessageDialog(null, "SALLE INDISPONIBLE POUR CE CRENEAU");
                                     }else{
-                                        sql = "UPDATE `seance` SET `HEURE_DEBUT` = '"+debutT+":00', `HEURE_FIN` = '"+finT+":00', `DATE='"+dateT+"' WHERE `seance`.`ID` = " + seance.getId();
-                                        
-                                        sql = "SELECT ID FROM cours WHERE NOM = \"" + nomCours.getSelectedItem().toString() + "\"";
+                                        sql = "SELECT salle.CAPACITE FROM salle WHERE salle.ID = " + idsalle;
                                         rs = stmt.executeQuery(sql);
-                                        int idCours = 0;
+                                        int capacite = 0;
                                         while(rs.next()){
-                                            idCours = rs.getInt("ID");
+                                            capacite = rs.getInt("CAPACITE");
                                         }
                                         
-                                        sql = "SELECT ID FROM type_cours WHERE NOM = \"" + typeCours.getSelectedItem().toString() + "\"";
+                                        sql = "SELECT COUNT(*) AS TOTAL FROM etudiant WHERE etudiant.ID_GROUPE = " + idgrpe;
                                         rs = stmt.executeQuery(sql);
-                                        int idType = 0;
+                                        int nbeleve = 0;
                                         while(rs.next()){
-                                            idType = rs.getInt("ID");
+                                            nbeleve = rs.getInt("TOTAL");
                                         }
-                                        
-                                        sql = "INSERT INTO `seance` (`ID`, `SEMAINE`, `DATE`, `HEURE_DEBUT`, `HEURE_FIN`, `ETAT`, `ID_COURS`, `ID_TYPE`) VALUES (NULL, '20', '" + dateT + "', '"+debutT+":00', '" + finT + ":00', '1', '" + idCours + "', '" + idType + "');";
-                                        stmt.executeUpdate(sql);
-                                        sql = "SELECT MAX(ID) AS MAX FROM seance";
-                                        rs = stmt.executeQuery(sql);
-                                        int seanceID = 0;
-                                        while(rs.next()){
-                                            seanceID = rs.getInt("MAX");
-                                        }
-                                        sql = "INSERT INTO `seance_enseignants` (`ID_SEANCE`, `ID_ENSEIGNANT`) VALUES ('" + seanceID + "', '" + idens + "');";
-                                        stmt.executeUpdate(sql);
-                                        
-                                        sql = "INSERT INTO `seance_groupe` (`ID_SEANCE`, `ID_GROUPE`) VALUES ('" + seanceID + "', '" + idgrpe + "');";
-                                        stmt.executeUpdate(sql);
-                                        
-                                        sql = "INSERT INTO `seance_salles` (`ID_SEANCE`, `ID_SALLE`) VALUES ('" + seanceID + "', '" + idsalle + "');";
-                                        stmt.executeUpdate(sql);
-                                        
-                                        // UPDATE OK
-                                        switch (type) {
-                                            case 1:
-                                                {
-                                                    Seance[] seances = Funtions.seancesUtilisateur(id, 1, debut, debut.plusDays(6));
-                                                    Seance[] seancesAnnule = Funtions.seancesUtilisateur(id, 2, debut, debut.plusDays(6));
-                                                    new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
-                                                    this.setVisible(false);
-                                                    this.dispose();
+                                        if(capacite < nbeleve){
+                                            JOptionPane.showMessageDialog(null, "La capacité de la salle n'est pas suffisante pour accuillir tous les élèves.");
+                                        }else{
+                                            sql = "SELECT ID FROM cours WHERE NOM = \"" + nomCours.getSelectedItem().toString() + "\"";
+                                            rs = stmt.executeQuery(sql);
+                                            int idCours = 0;
+                                            while(rs.next()){
+                                                idCours = rs.getInt("ID");
+                                            }
+
+                                            sql = "SELECT ID FROM type_cours WHERE NOM = \"" + typeCours.getSelectedItem().toString() + "\"";
+                                            rs = stmt.executeQuery(sql);
+                                            int idType = 0;
+                                            while(rs.next()){
+                                                idType = rs.getInt("ID");
+                                            }
+
+                                            sql = "INSERT INTO `seance` (`ID`, `SEMAINE`, `DATE`, `HEURE_DEBUT`, `HEURE_FIN`, `ETAT`, `ID_COURS`, `ID_TYPE`) VALUES (NULL, '20', '" + dateT + "', '"+debutT+":00', '" + finT + ":00', '1', '" + idCours + "', '" + idType + "');";
+                                            stmt.executeUpdate(sql);
+                                            sql = "SELECT MAX(ID) AS MAX FROM seance";
+                                            rs = stmt.executeQuery(sql);
+                                            int seanceID = 0;
+                                            while(rs.next()){
+                                                seanceID = rs.getInt("MAX");
+                                            }
+                                            sql = "INSERT INTO `seance_enseignants` (`ID_SEANCE`, `ID_ENSEIGNANT`) VALUES ('" + seanceID + "', '" + idens + "');";
+                                            stmt.executeUpdate(sql);
+
+                                            sql = "INSERT INTO `seance_groupe` (`ID_SEANCE`, `ID_GROUPE`) VALUES ('" + seanceID + "', '" + idgrpe + "');";
+                                            stmt.executeUpdate(sql);
+
+                                            sql = "INSERT INTO `seance_salles` (`ID_SEANCE`, `ID_SALLE`) VALUES ('" + seanceID + "', '" + idsalle + "');";
+                                            System.out.println(sql);
+                                            stmt.executeUpdate(sql);
+
+                                            // UPDATE OK
+                                            switch (type) {
+                                                case 1:
+                                                    {
+                                                        Seance[] seances = Funtions.seancesUtilisateur(id, 1, debut, debut.plusDays(6));
+                                                        Seance[] seancesAnnule = Funtions.seancesUtilisateur(id, 2, debut, debut.plusDays(6));
+                                                        new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
+                                                        this.setVisible(false);
+                                                        this.dispose();
+                                                        break;
+                                                    }
+                                                case 2:
+                                                    {
+                                                        Seance[] seances = Funtions.seancesEnseignant(id, 1, debut, debut.plusDays(6));
+                                                        Seance[] seancesAnnule = Funtions.seancesEnseignant(id, 2, debut, debut.plusDays(6));
+                                                        new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
+                                                        this.setVisible(false);
+                                                        this.dispose();
+                                                        break;
+                                                    }
+                                                case 3:
+                                                    {
+                                                        Seance[] seances = Funtions.seancesSalle(id, 1, debut, debut.plusDays(6));
+                                                        Seance[] seancesAnnule = Funtions.seancesSalle(id, 2, debut, debut.plusDays(6));
+                                                        new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
+                                                        this.setVisible(false);
+                                                        this.dispose();
+                                                        break;
+                                                    }
+                                                default:
                                                     break;
-                                                }
-                                            case 2:
-                                                {
-                                                    Seance[] seances = Funtions.seancesEnseignant(id, 1, debut, debut.plusDays(6));
-                                                    Seance[] seancesAnnule = Funtions.seancesEnseignant(id, 2, debut, debut.plusDays(6));
-                                                    new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
-                                                    this.setVisible(false);
-                                                    this.dispose();
-                                                    break;
-                                                }
-                                            case 3:
-                                                {
-                                                    Seance[] seances = Funtions.seancesSalle(id, 1, debut, debut.plusDays(6));
-                                                    Seance[] seancesAnnule = Funtions.seancesSalle(id, 2, debut, debut.plusDays(6));
-                                                    new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
-                                                    this.setVisible(false);
-                                                    this.dispose();
-                                                    break;
-                                                }
-                                            default:
-                                                break;
-                                        }
-                                    }
-                                       
+                                            }
+                                        }                                        
+                                    }                                       
                                 }
                             }
                         }catch(SQLException se){

@@ -349,11 +349,11 @@ public class Funtions {
                     "	seance_enseignants.ID_ENSEIGNANT = " + ID_ENSEIGNANT + " AND seance.ETAT = " + ETAT +
                     " AND seance.DATE <= \"" + fin + "\" AND seance.DATE >= \"" + debut + "\""    ;
                 rs = stmt.executeQuery(sql);
-                int id, semaine, etat, e=0;
+                int id, semaine, etat, e=0, posColor=0;
                 String coursName, typeCours;
                 LocalDate date;
                 LocalTime timeDebut, timeFin;
-
+                ArrayList<String> colorCours = new ArrayList<>(); 
 
                 while(rs.next()){
                     id = rs.getInt("ID");
@@ -364,8 +364,14 @@ public class Funtions {
                     date = rs.getDate("DATE").toLocalDate();
                     timeDebut = rs.getTime("HEURE_DEBUT").toLocalTime();
                     timeFin = rs.getTime("HEURE_FIN").toLocalTime();
-
+                    if(colorCours.contains(coursName)){
+                        posColor = colorCours.indexOf(coursName);
+                    }else{
+                        colorCours.add(coursName);
+                        posColor = colorCours.size() - 1;
+                    }
                     seances[e] = new Seance(id, semaine, coursName, typeCours, timeDebut, timeFin, date, etat);
+                    seances[e].setColor(colors[posColor]);
                     ++e;
                 }
                 int totalTemp = 0;
@@ -599,12 +605,12 @@ public class Funtions {
                     "	seance_salles.ID_SALLE = " + ID_SALLE + " AND seance.ETAT = " + ETAT +
                     " AND seance.DATE <= \"" + fin + "\" AND seance.DATE >= \"" + debut + "\""    ;
                 rs = stmt.executeQuery(sql);
-                int id, semaine, etat, e=0;
+                int id, semaine, etat, e=0, posColor = 0;
                 String coursName, typeCours;
                 LocalDate date;
                 LocalTime timeDebut, timeFin;
-
-
+                ArrayList<String> colorCours = new ArrayList<>(); 
+                
                 while(rs.next()){
                     id = rs.getInt("ID");
                     semaine = rs.getInt("SEMAINE");
@@ -614,8 +620,14 @@ public class Funtions {
                     date = rs.getDate("DATE").toLocalDate();
                     timeDebut = rs.getTime("HEURE_DEBUT").toLocalTime();
                     timeFin = rs.getTime("HEURE_FIN").toLocalTime();
-
+                    if(colorCours.contains(coursName)){
+                        posColor = colorCours.indexOf(coursName);
+                    }else{
+                        colorCours.add(coursName);
+                        posColor = colorCours.size() - 1;
+                    }
                     seances[e] = new Seance(id, semaine, coursName, typeCours, timeDebut, timeFin, date, etat);
+                    seances[e].setColor(colors[posColor]);
                     ++e;
                 }
                 int totalTemp = 0;

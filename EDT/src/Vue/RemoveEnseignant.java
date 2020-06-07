@@ -8,6 +8,7 @@ import java.awt.event.*;
 import java.sql.*;
 import java.time.*;
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 
 public class RemoveEnseignant extends JFrame implements ActionListener{
     private final int SIZE_X = 350, SIZE_Y = 300;
@@ -34,10 +35,14 @@ public class RemoveEnseignant extends JFrame implements ActionListener{
         
         back = new JButton("Retour");
         back.addActionListener(this);
+        back.setBackground(new Color(38,114,236));
+        back.setForeground(Color.WHITE);
         panel.add(back);
         
         remove = new JButton("Supprimer");
         remove.addActionListener(this);
+        remove.setBackground(new Color(38,114,236));
+        remove.setForeground(Color.WHITE);
         panel.add(remove);
         
         if(seance != null){
@@ -55,6 +60,9 @@ public class RemoveEnseignant extends JFrame implements ActionListener{
                         return false;
                     }
                 };
+                JTableHeader header = groupeTable.getTableHeader();
+                header.setBackground(new Color(47,111,119));
+                header.setForeground(Color.WHITE);
                 JScrollPane s = new JScrollPane(groupeTable);
                 this.getContentPane().add(s, BorderLayout.CENTER);    
             }

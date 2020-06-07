@@ -1,7 +1,9 @@
 package Vue;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 
 
 public class EnsCours extends JFrame {
@@ -17,6 +19,9 @@ public class EnsCours extends JFrame {
                 return false;
             }
         };
+        JTableHeader header = coursTable.getTableHeader();
+        header.setBackground(new Color(47,111,119));
+        header.setForeground(Color.WHITE);
         this.setTitle("Racpitulatif de cours");
         //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(SIZE_X, SIZE_Y);

@@ -2,6 +2,7 @@ package Vue;
 
 import Model.Seance;
 import Model.Funtions;
+import java.awt.Color;
 import java.awt.event.*;
 import java.sql.*;
 import java.time.*;
@@ -42,11 +43,15 @@ public class EditNom extends JFrame implements ActionListener{
         modifier = new JButton("Modifier");
         modifier.addActionListener(this);
         modifier.setBounds(55, 95, modifier.getPreferredSize().width, 25);
+        modifier.setBackground(new Color(38,114,236));
+        modifier.setForeground(Color.WHITE);
         panel.add(modifier);
         
         cancel = new JButton("Annuler");
         cancel.addActionListener(this);
         cancel.setBounds(65 + modifier.getPreferredSize().width, 95 , cancel.getPreferredSize().width, 25);
+        cancel.setBackground(new Color(38,114,236));
+        cancel.setForeground(Color.WHITE);
         panel.add(cancel);
         
         Connection conn = null;

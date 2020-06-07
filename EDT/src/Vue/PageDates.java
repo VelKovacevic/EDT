@@ -10,7 +10,7 @@ import java.time.*;
 import javax.swing.*;
 
 public class PageDates extends JFrame implements ActionListener{
-    private final int SIZE_X = 300, SIZE_Y = 220;
+    private final int SIZE_X = 300, SIZE_Y = 270;
     private JTextField textDateDeb, textDateFin;
     private JButton cancel, validate;
     private LocalDate debut; 
@@ -85,16 +85,22 @@ public class PageDates extends JFrame implements ActionListener{
         lab2.setBounds(65, 77, 150,20);
         panel.add(lab2);
         
-        textDateDeb = new JTextField();
-        textDateDeb.setBounds(65, 100, 150, 25);
-        panel.add(textDateDeb);
+        textDateFin = new JTextField();
+        textDateFin.setBounds(65, 100, 150, 25);
+        panel.add(textDateFin);
         
         cancel = new JButton("Annuler");
         cancel.setBounds(60, 140, cancel.getPreferredSize().width, 23);
+        cancel.setBackground(new Color(200,200,200));
+        cancel.setForeground(Color.WHITE);
+        cancel.addActionListener(this);
         panel.add(cancel);
         
         validate = new JButton("Valider");
         validate.setBounds(70 + cancel.getPreferredSize().width, 140, validate.getPreferredSize().width, 23);
+        validate.setBackground(new Color(38,114,236));
+        validate.setForeground(Color.WHITE);
+        validate.addActionListener(this);
         panel.add(validate);
         
         this.add(panel);
@@ -142,7 +148,7 @@ public class PageDates extends JFrame implements ActionListener{
         }else if(e.getSource() == validate){
             String splitDebut[], splitFin[], debutD, finD;
             debutD = textDateDeb.getText();
-            finD =textDateFin.getText();
+            finD = textDateFin.getText();
             splitDebut = debutD.split("-");
             splitFin = finD.split("-");
             if(splitDebut.length != 3 || splitFin.length != 3){
@@ -151,7 +157,7 @@ public class PageDates extends JFrame implements ActionListener{
                 LocalDate deb = LocalDate.of(Integer.parseInt(splitDebut[0]), Integer.parseInt(splitDebut[1]), Integer.parseInt(splitDebut[2])), 
                         fin = LocalDate.of(Integer.parseInt(splitFin[0]), Integer.parseInt(splitFin[1]), Integer.parseInt(splitFin[2]));
                 Seance[] seancesa = Funtions.seancesEnseignant(id, 1, deb, fin);
-                new ListeCours(seancesAnnule, seancesa, debut, id, nom, type);
+                new ListeCours(debutD, finD, seancesAnnule, seancesa, debut, id, nom, type);
                 this.setVisible(false);
                 this.dispose();
             }

@@ -18,24 +18,10 @@ public class Connexion extends JFrame implements ActionListener {
     
     private final static String DB_URL="jdbc:mysql://localhost/edt";
     private final static String USER ="root", PASS="";
-    private final int SIZE_X = 600, SIZE_Y = 400;
+    private final int SIZE_X = 818, SIZE_Y = 400;
     private JButton buttonConnexion = new JButton();
     private final JTextField textFieldEmail = new JTextField();
     private final JPasswordField textFieldPass = new JPasswordField();
-    
-    private JMenuBar mb = new JMenuBar();
-    private JMenu submenu = new JMenu("Emploi du temps");
-    private JMenu deco = new JMenu("Deconnexion");
-    private JMenuItem vertical = new JMenuItem("EDT Vertical");
-    private JMenuItem horizontal = new JMenuItem("EDT Horizontal");
-    private JMenuItem liste = new JMenuItem("EDT Liste");
-    private JMenuItem deconnexion = new JMenuItem("Deconnexion");
-    private JMenu recap = new JMenu("Recapitulatif");
-    private JMenuItem courS = new JMenuItem("Cours");
-    private JMenu recherche =new JMenu("Recherche");
-    private JMenuItem  rechercher= new JMenuItem("Rechercher");
-    private JMenu admin = new JMenu("Admin");
-    private JMenuItem listeEDT = new JMenuItem("EDT Liste");
     
     public Connexion(){
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -43,69 +29,50 @@ public class Connexion extends JFrame implements ActionListener {
         this.setSize(SIZE_X, SIZE_Y);
         Cache.utilisateur = null;
         JPanel panel = new JPanel();
+        
         panel.setLayout(null);
-        vertical.addActionListener(this);
-        horizontal.addActionListener(this);
-        liste.addActionListener(this);
-        deconnexion.addActionListener(this);
+        ImageIcon image = new ImageIcon("./src/image/EDT-fond accueila.png");
+        ImageIcon imageINSEEC = new ImageIcon("./src/image/logo INSEECa.png");
+        JLabel img = new JLabel(image);
+        img.setBounds(0, 0, 598, 400);
+        panel.add(img);
         
-        submenu.add(vertical);
-        submenu.add(horizontal);
-        submenu.add(liste);
-        deco.add(deconnexion);
-        mb.add(submenu);
-        if(true){
-            courS.addActionListener(this);
-            recap.add(courS);
-            mb.add(recap);
-        }
-        if(true){
-            listeEDT.addActionListener(this);
-            admin.add(listeEDT);
-            mb.add(admin);
-        }
-        if(true){
-            rechercher.addActionListener(this);
-            recherche.add(rechercher);
-            mb.add(rechercher);
-        }
-        mb.add(deco);
-        this.setJMenuBar(mb);
-        
-        int xAlignement = 250;
+        JLabel imgLogo = new JLabel(imageINSEEC);
+        imgLogo.setBounds(608, 20, 180, 41);
+        panel.add(imgLogo);
+        int xAlignement = 618;
         // Add Email Label
         JLabel labelEmail = new JLabel("E-Mail");
         labelEmail.setFont(new java.awt.Font("Avenir", 0, 15));
         Dimension size = labelEmail.getPreferredSize();
-        labelEmail.setBounds(xAlignement, 70, size.width, size.height);
+        labelEmail.setBounds(xAlignement, 140, 150, size.height);
         panel.add(labelEmail);
         
         // Add Pass label
         JLabel labelPass = new JLabel("Mot de passe");
         labelPass.setFont(new java.awt.Font("Avenir", 0, 15));
         size = labelPass.getPreferredSize();
-        labelPass.setBounds(xAlignement, 140, size.width, size.height);
+        labelPass.setBounds(xAlignement, 190, 150, size.height);
         panel.add(labelPass);
         
         // Add Email
-        textFieldEmail.setBounds(xAlignement, 95, 100, 20);
+        textFieldEmail.setBounds(xAlignement, 165, 170, 20);
         panel.add(textFieldEmail);
         
         // Add password
-        textFieldPass.setBounds(xAlignement, 165, 100, 20);
+        textFieldPass.setBounds(xAlignement, 215, 170, 20);
         panel.add(textFieldPass);
         
         // Add button connexion
         buttonConnexion = new JButton("Connexion");
-        buttonConnexion.setBackground(new Color(210,210,210));
+        buttonConnexion.setBackground(new Color(38,114,236));
         buttonConnexion.setOpaque(true);
         size = buttonConnexion.getPreferredSize();
         buttonConnexion.setFont(new Font("Avenir", 1, 11));
-        buttonConnexion.setBounds(xAlignement, 190, size.width, size.height);
+        buttonConnexion.setBounds(xAlignement, 250, 170, size.height);
         buttonConnexion.addActionListener(this);
-        buttonConnexion.setSize(100,25); // Set size (WIDTH, HEIGH)
+        buttonConnexion.setSize(170,25); // Set size (WIDTH, HEIGH)
         panel.add(buttonConnexion);
-        
         
         this.add(panel);
         this.setLocationRelativeTo(null);
@@ -241,17 +208,6 @@ public class Connexion extends JFrame implements ActionListener {
                     se.printStackTrace();
                 }//end finally try
             }//end try   
-        }else if(e.getSource() == deconnexion){
-            new Connexion();
-            this.setVisible(false);
-            this.dispose();
-        }else if(e.getSource() == vertical){
-            // new EdtVertical();
-        }else if(e.getSource() == horizontal){
-            // new Edt();
-        }else if(e.getSource() == liste){
-            // new ListEdt();
         }
-    
     }
 }

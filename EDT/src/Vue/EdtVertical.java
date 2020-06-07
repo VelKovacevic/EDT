@@ -22,16 +22,16 @@ public class EdtVertical extends JFrame implements ActionListener{
     private JMenuBar mb = new JMenuBar();
     private JMenu submenu = new JMenu("Emploi du temps");
     private JMenu deco = new JMenu("Deconnexion");
-    private JMenuItem vertical = new JMenuItem("EDT Vertical");
-    private JMenuItem horizontal = new JMenuItem("EDT Horizontal");
-    private JMenuItem liste = new JMenuItem("EDT Liste");
-    private JMenuItem deconnexion = new JMenuItem("Deconnexion");
+    private JMenuItem vertical = new JMenuItem("EDT Vertical", new ImageIcon("./src/image/edtvertical.png"));
+    private JMenuItem horizontal = new JMenuItem("EDT Horizontal", new ImageIcon("./src/image/edthorizontal.png"));
+    private JMenuItem liste = new JMenuItem("EDT Liste", new ImageIcon("./src/image/edtliste.png"));
+    private JMenuItem deconnexion = new JMenuItem("Deconnexion", new ImageIcon("./src/image/disconnect.png"));
     private JMenu recap = new JMenu("Recapitulatif");
-    private JMenuItem courS = new JMenuItem("Cours");
+    private JMenuItem courS = new JMenuItem("Cours", new ImageIcon("./src/image/recap.png"));
     private JMenu recherche =new JMenu("Recherche");
-    private JMenuItem  rechercher= new JMenuItem("Rechercher");
+    private JMenuItem  rechercher= new JMenuItem("Rechercher", new ImageIcon("./src/image/search.png"));
     private JMenu admin = new JMenu("Admin");
-    private JMenuItem listeEDT = new JMenuItem("EDT Liste");
+    private JMenuItem listeEDT = new JMenuItem("EDT Liste", new ImageIcon("./src/image/editlisteadm.png"));
     
     EdtVertical(Seance[] seancesAnnule,Seance[] seances, LocalDate debut, int id, String nom, int type){
         this.seancesAnnule = seancesAnnule;
@@ -79,7 +79,7 @@ public class EdtVertical extends JFrame implements ActionListener{
                 super.paintComponent(g);
                 g.setColor(Color.white);
                 g.fillRect(SIZE_X/6, SIZE_Y/7, SIZE_X, 12*SIZE_Y/7);
-                g.setColor(Color.CYAN);
+                g.setColor(new Color(241, 130, 128));
                 g.fillRect(SIZE_X/6+1, 1+150*SIZE_Y/420, SIZE_X, 15*SIZE_Y/420);
                 g.fillRect(SIZE_X/6+1, 1+255*SIZE_Y/420, SIZE_X, 15*SIZE_Y/420);
                 g.fillRect(SIZE_X/6+1, 1+360*SIZE_Y/420, SIZE_X, 15*SIZE_Y/420);
@@ -131,6 +131,7 @@ public class EdtVertical extends JFrame implements ActionListener{
                         }
                     }
                 }
+                
             }  
         };
         this.addHeuresVert(panel);
@@ -173,7 +174,7 @@ public class EdtVertical extends JFrame implements ActionListener{
         if(seancesAnnule != null){
             JLabel tf[] = new JLabel[seancesAnnule.length];
             for(int i=0; i<seancesAnnule.length; ++i){
-                TITLE = "<html>";
+                TITLE = "<html>ANNULE<br>";
                 dayOfWeek = Funtions.convertWeekOfDay(seancesAnnule[i].getDate().getDayOfWeek());
                 TITLE += seancesAnnule[i].getCours();
 
@@ -213,7 +214,8 @@ public class EdtVertical extends JFrame implements ActionListener{
             debutDates[i-1] = temporalDate;
             button[i-1] = new JButton(temporalDate.get(weekFields.weekOfWeekBasedYear())+"");
             button[i-1].setBounds(d, 20, button[i-1].getPreferredSize().width, button[i-1].getPreferredSize().height);
-            button[i-1].setBackground(new Color(220,220,220));
+            button[i-1].setBackground(new Color(47,111,119));
+            button[i-1].setForeground(Color.WHITE);
             button[i-1].setOpaque(true);
             d += button[i-1].getPreferredSize().width;
             button[i-1].setBorder(null);
@@ -379,7 +381,7 @@ public class EdtVertical extends JFrame implements ActionListener{
             this.dispose();
         }else if(e.getSource() == vertical){
             //new EdtVertical(seances, debut, id, nom, type);
-            new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
+            new EdtVertical(seancesAnnule, seances, debut, id, nom, type);
             this.setVisible(false);
             this.dispose();
         }else if(e.getSource() == horizontal){

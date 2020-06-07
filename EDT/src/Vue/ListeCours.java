@@ -9,6 +9,7 @@ import java.sql.*;
 import java.time.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 
 
 public class ListeCours extends JFrame implements ActionListener{
@@ -24,18 +25,18 @@ public class ListeCours extends JFrame implements ActionListener{
     private JMenuBar mb = new JMenuBar();
     private JMenu submenu = new JMenu("Emploi du temps");
     private JMenu deco = new JMenu("Deconnexion");
-    private JMenuItem vertical = new JMenuItem("EDT Vertical");
-    private JMenuItem horizontal = new JMenuItem("EDT Horizontal");
-    private JMenuItem liste = new JMenuItem("EDT Liste");
-    private JMenuItem deconnexion = new JMenuItem("Deconnexion");
+    private JMenuItem vertical = new JMenuItem("EDT Vertical", new ImageIcon("./src/image/edtvertical.png"));
+    private JMenuItem horizontal = new JMenuItem("EDT Horizontal", new ImageIcon("./src/image/edthorizontal.png"));
+    private JMenuItem liste = new JMenuItem("EDT Liste", new ImageIcon("./src/image/edtliste.png"));
+    private JMenuItem deconnexion = new JMenuItem("Deconnexion", new ImageIcon("./src/image/disconnect.png"));
     private JMenu recap = new JMenu("Recapitulatif");
-    private JMenuItem courS = new JMenuItem("Cours");
+    private JMenuItem courS = new JMenuItem("Cours", new ImageIcon("./src/image/recap.png"));
     private JMenu recherche =new JMenu("Recherche");
-    private JMenuItem  rechercher= new JMenuItem("Rechercher");
+    private JMenuItem  rechercher= new JMenuItem("Rechercher", new ImageIcon("./src/image/search.png"));
     private JMenu admin = new JMenu("Admin");
-    private JMenuItem listeEDT = new JMenuItem("EDT Liste");
+    private JMenuItem listeEDT = new JMenuItem("EDT Liste", new ImageIcon("./src/image/editlisteadm.png"));
     
-    public ListeCours(Seance[] seancesAnnule, Seance[] seances, LocalDate debut, int id, String nom, int type){
+    public ListeCours(String deb, String fin, Seance[] seancesAnnule, Seance[] seances, LocalDate debut, int id, String nom, int type){
         this.seances = seances;
         this.debut = debut;
         this.id = id;
@@ -79,11 +80,16 @@ public class ListeCours extends JFrame implements ActionListener{
                 return false;
             }
         };
-        this.setTitle("Racpitulatif de cours");
+        JTableHeader header = coursTable.getTableHeader();
+        header.setBackground(new Color(47,111,119));
+        header.setForeground(Color.WHITE);
+        this.setTitle("Racpitulatif de cours de " + deb + " à " + fin);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(SIZE_X, SIZE_Y);
         this.getContentPane().add(new JScrollPane(coursTable), BorderLayout.CENTER);
         VOIR = new JButton("Voir le detail");
+        VOIR.setBackground(new Color(38,114,236));
+        VOIR.setForeground(Color.WHITE);
         VOIR.addActionListener(this);
         this.getContentPane().add(VOIR, BorderLayout.SOUTH);
         this.setLocationRelativeTo(null);

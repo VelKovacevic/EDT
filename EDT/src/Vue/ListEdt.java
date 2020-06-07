@@ -10,6 +10,7 @@ import java.time.*;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -27,16 +28,16 @@ public class ListEdt extends JFrame implements ActionListener{
     private JMenuBar mb = new JMenuBar();
     private JMenu submenu = new JMenu("Emploi du temps");
     private JMenu deco = new JMenu("Deconnexion");
-    private JMenuItem vertical = new JMenuItem("EDT Vertical");
-    private JMenuItem horizontal = new JMenuItem("EDT Horizontal");
-    private JMenuItem liste = new JMenuItem("EDT Liste");
-    private JMenuItem deconnexion = new JMenuItem("Deconnexion");
+    private JMenuItem vertical = new JMenuItem("EDT Vertical", new ImageIcon("./src/image/edtvertical.png"));
+    private JMenuItem horizontal = new JMenuItem("EDT Horizontal", new ImageIcon("./src/image/edthorizontal.png"));
+    private JMenuItem liste = new JMenuItem("EDT Liste", new ImageIcon("./src/image/edtliste.png"));
+    private JMenuItem deconnexion = new JMenuItem("Deconnexion", new ImageIcon("./src/image/disconnect.png"));
     private JMenu recap = new JMenu("Recapitulatif");
-    private JMenuItem courS = new JMenuItem("Cours");
+    private JMenuItem courS = new JMenuItem("Cours", new ImageIcon("./src/image/recap.png"));
     private JMenu recherche =new JMenu("Recherche");
-    private JMenuItem  rechercher= new JMenuItem("Rechercher");
+    private JMenuItem  rechercher= new JMenuItem("Rechercher", new ImageIcon("./src/image/search.png"));
     private JMenu admin = new JMenu("Admin");
-    private JMenuItem listeEDT = new JMenuItem("EDT Liste");
+    private JMenuItem listeEDT = new JMenuItem("EDT Liste", new ImageIcon("./src/image/editlisteadm.png"));
             
     public ListEdt(Seance[] seancesAnnule, Seance[] seances, LocalDate debut, int id, String nom, int type){
         this.seances = seances;
@@ -108,6 +109,10 @@ public class ListEdt extends JFrame implements ActionListener{
                     return false;
                 }
             };
+            JTableHeader header = coursTable.getTableHeader();
+            header.setBackground(new Color(47,111,119));
+            header.setForeground(Color.WHITE);
+            
             coursTable.getColumnModel().getColumn(0).setPreferredWidth(0);
             coursTable.getColumnModel().getColumn(1).setMaxWidth(50);
             coursTable.getColumnModel().getColumn(2).setMaxWidth(50);
@@ -132,7 +137,8 @@ public class ListEdt extends JFrame implements ActionListener{
             debutDates[i-1] = temporalDate;
             button[i-1] = new JButton(temporalDate.get(weekFields.weekOfWeekBasedYear())+"");
             button[i-1].setBounds(d, 50, button[i-1].getPreferredSize().width, button[i-1].getPreferredSize().height);
-            button[i-1].setBackground(new Color(220,220,220));
+            button[i-1].setBackground(new Color(47,111,119));
+            button[i-1].setForeground(Color.WHITE);
             button[i-1].setOpaque(true);
             d += button[i-1].getPreferredSize().width;
             button[i-1].setBorder(null);
@@ -189,7 +195,7 @@ public class ListEdt extends JFrame implements ActionListener{
             this.dispose();
         }else if(e.getSource() == vertical){
             //new EdtVertical(seances, debut, id, nom, type);
-            new ListEdtAdmin(seancesAnnule, seances, debut, id, nom, type);
+            new EdtVertical(seancesAnnule, seances, debut, id, nom, type);
             this.setVisible(false);
             this.dispose();
         }else if(e.getSource() == horizontal){

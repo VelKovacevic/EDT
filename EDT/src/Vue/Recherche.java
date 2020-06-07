@@ -2,6 +2,7 @@ package Vue;
 
 import Model.Seance;
 import Model.Funtions;
+import java.awt.Color;
 import java.awt.event.*;
 import java.sql.*;
 import java.time.*;
@@ -46,6 +47,8 @@ public class Recherche extends JFrame implements ActionListener{
         
         chercher = new JButton("Rechercher");
         chercher.setBounds(100, 127, 190, 23);
+        chercher.setBackground(new Color(38,114,236));
+        chercher.setForeground(Color.WHITE);
         chercher.addActionListener(this);
         panel.add(chercher);
         this.add(panel);

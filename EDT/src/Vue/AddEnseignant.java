@@ -2,6 +2,7 @@ package Vue;
 
 import Model.Seance;
 import Model.Funtions;
+import java.awt.Color;
 import java.awt.event.*;
 import java.sql.*;
 import java.time.*;
@@ -48,11 +49,15 @@ public class AddEnseignant extends JFrame implements ActionListener{
         cancel = new JButton("Annuler");
         cancel.addActionListener(this);
         cancel.setBounds(60, 120, cancel.getPreferredSize().width, 20);
+        cancel.setBackground(new Color(38,114,236));
+        cancel.setForeground(Color.WHITE);
         panel.add(cancel);
         
         ajouter = new JButton("Ajouter");
         ajouter.addActionListener(this);
         ajouter.setBounds(70 + cancel.getPreferredSize().width, 120, ajouter.getPreferredSize().width, 20);
+        ajouter.setBackground(new Color(38,114,236));
+        ajouter.setForeground(Color.WHITE);
         panel.add(ajouter);
         
         saisie = new JTextField();
